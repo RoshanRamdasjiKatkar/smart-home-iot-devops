@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     environment {
-        GCP_VM_IP = '34.170.83.121'
         GCP_VM_USER = 'root'
     }
 
@@ -29,11 +28,11 @@ pipeline {
             steps {
                 sshagent(['gcp-vm-ssh-key']) {
                     sh """
-                        ssh -o StrictHostKeyChecking=no ${GCP_VM_USER}@${GCP_VM_IP} "
+                        ssh -o StrictHostKeyChecking=no ${GCP_VM_USER}@localhost "
                             mkdir -p ~/smart-home
                             docker stop iot-backend || true
                             docker rm iot-backend || true
-                            docker run -d --name iot-backend --restart unless-stopped -p 8000:8000 -v /var/lib/jenkins/workspace/smart-home-pipeline:/app -w /app python:3.11-slim bash -c 'pip install fastapi uvicorn pydantic && uvicorn app.main:app --host 0.0.0.0 --port 8000'
+                            docker run -d --name iot-backend --restart unless-stopped -p 8000:8000 -v /var/lib/jenkins/workspace/cicd:/app -w /app python:3.11-slim bash -c 'pip install fastapi uvicorn pydantic && uvicorn app.main:app --host 0.0.0.0 --port 8000'
                         "
                     """
                 }
